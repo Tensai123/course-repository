@@ -23,7 +23,7 @@ jobs:
       - name: Ustal wersję
         id: version
         run: |
-          VERSION="${{ env.APP_VERION}} -$(git rev-parse --short HEAD)"
+          VERSION="${{ env.APP_VERION}}-$(git rev-parse --short HEAD)"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Build version: $VERSION"
     
