@@ -23,7 +23,7 @@ jobs:
       - name: Ustal wersję
         id: version
         run: |
-          VERSION="$APP_VERSION-$(git rev-parse --short HEAD)"
+          VERSION="${{ env.APP_VERION}} -$(git rev-parse --short HEAD)"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Build version: $VERSION"
     
@@ -45,7 +45,7 @@ jobs:
   deploy: 
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/head/master' && github.event_name == 'push'
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
 
     steps:
     - name: Download artefaktu
