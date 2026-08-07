@@ -1,0 +1,72 @@
+name: Test and Build Workflow
+
+on: 
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [ '3.9', '3.10', '3.11' ]
+
+    steps:
+      - name: Checkout kodu
+        uses: actions/checkout@v3
+
+      - name: Instalacja Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Instalacja zależności
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+
+      - name: Uruchom testy
+        run: |
+          pytest --cov=. --cov-report=xml --cov-report=term
+
+      - name: Wyświetl wyniki
+        if: always()
+        run: |
+          echo "=== Test Summary ==="
+          echo "Python Version: ${{ matrix.python-version }}"
+          echo "Status: ${{ job.status }}"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout kodu
+        uses: actions/checkout@v3
+
+      - name: Instalacja Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalacja narzędzi
+        run: pip install flake8 pylint
+
+      - name: Analiza kodu (flake8)
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+
+      - name: Analiza kodu (pylint)
+        run: pylint **/*.py --exit-zero || true
+
+  status:
+    needs: [ test, lint ]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Podsumowanie statusu
+        run: |
+          echo "Test status: ${{ needs.test.result }}"
+          echo "Lint status: ${{ needs.lint.result }}"
+        
