@@ -1,0 +1,33 @@
+name: Advanced Error Handling & Summary
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Flaky step (Allowed to fail)
+        id: flaky_step
+        continue-on-error: true
+        run: |
+          echo "Simulating unstable step..."
+          exit 1
+
+      - name: Execute Critical Test
+        run: |
+          echo "Executing critical unit tests..."
+
+      - name: Generate Actions Summary
+        if: always()
+        run: |
+          echo "## CI Execution Summary" >> $GITHUB_STEP_SUMMARY
+          echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Triggered By** |  ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Branch** | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Unstable Step Status** | ${{ steps.flaky_step.outcome }} |" >> $GITHUB_STEP_SUMMARY 
