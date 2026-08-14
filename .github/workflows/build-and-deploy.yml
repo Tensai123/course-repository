@@ -12,7 +12,7 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     outputs:
       build-version: ${{ steps.version.outputs.version }}
 
@@ -33,6 +33,7 @@ jobs:
           echo "Version: ${{ steps.version.outputs.version }}" > build/version.txt
           echo "Build time: $(date)" >> build.version.txt
           echo "Repository: ${{ github.repository }}" >> build/version.txt
+          hostname >> build/version.txt
           tar czf app-${{ steps.version.ouputs.version }}.tar.gz build/
     
       - name: Przesyłanie artefaktu
